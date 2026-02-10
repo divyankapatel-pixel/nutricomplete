@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriComplete - Interactive Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .content {
+            padding: 25px;
+        }
+        
+        .input-section {
+            margin-bottom: 25px;
+        }
+        
+        .input-section label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .meal-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .meal-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .quick-meals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .quick-meal-btn {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-meal-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .analyze-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 15px;
+        }
+        
+        .photo-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .photo-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .completion-score {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-number {
+            font-size: 3.5em;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        
+        .score-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .nutrient-rings {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .nutrient-ring {
+            text-align: center;
+        }
+        
+        .ring-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 8px;
+            position: relative;
+        }
+        
+        .ring-svg {
+            transform: rotate(-90deg);
+        }
+        
+        .ring-background {
+            fill: none;
+            stroke: #f0f0f0;
+            stroke-width: 8;
+        }
+        
+        .ring-progress {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+        
+        .ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .nutrient-name {
+            font-size: 0.8em;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin: 25px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .recommendation-card.food {
+            border-left-color: #00b894;
+        }
+        
+        .recommendation-card.supplement {
+            border-left-color: #fdcb6e;
+        }
+        
+        .recommendation-card.timing {
+            border-left-color: #e17055;
+        }
+        
+        .rec-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .rec-icon {
+            font-size: 1.5em;
+        }
+        
+        .rec-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+        
+        .rec-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-left: 40px;
+        }
+        
+        .rec-benefit {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 8px 0 0 40px;
+            font-size: 0.85em;
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .gaps-list {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .gaps-list h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .gap-item {
+            color: #856404;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .covered-nutrients {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .covered-nutrients h4 {
+            color: #155724;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .covered-item {
+            color: #155724;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .reset-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .portion-control {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .portion-label {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95em;
+        }
+        
+        .portion-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .portion-btn {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 50%;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .portion-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .portion-value {
+            min-width: 80px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 NutriComplete</h1>
+            <p>See what's missing. Know how to fix it.</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <label for="mealInput">What did you eat?</label>
+                <input 
+                    type="text" 
+                    id="mealInput" 
+                    class="meal-input" 
+                    placeholder="e.g., grilled chicken, brown rice, broccoli"
+                >
+                
+                <div style="text-align: center; margin: 15px 0;">
+                    <span style="color: #999; font-size: 0.9em;">- OR -</span>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <input 
+                        type="file" 
+                        id="photoInput" 
+                        accept="image/*" 
+                        capture="environment"
+                        style="display: none;"
+                        onchange="handlePhotoUpload(event)"
+                    >
+                    <button 
+                        class="photo-btn" 
+                        onclick="document.getElementById('photoInput').click()"
+                    >
+                        📸 Take/Upload Photo
+                    </button>
+                </div>
+                
+                <div id="photoPreview" style="display: none; margin: 15px 0; text-align: center;">
+                    <img id="previewImage" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                    <div style="font-size: 0.9em; color: #667eea; font-weight: 500;">
+                        ✓ Photo uploaded! Click analyze to see results
+                    </div>
+                </div>
+                
+                <div class="quick-meals">
+                    <button class="quick-meal-btn" onclick="setQuickMeal('grilled chicken breast, brown rice, steamed broccoli')">Chicken & Rice</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('salmon fillet, quinoa, spinach salad with olive oil')">Salmon Bowl</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('scrambled eggs, whole wheat toast, avocado')">Breakfast Classic</button>
+                    
+                    <!-- Indian Meals -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('chicken biryani, raita, salad')">🇮🇳 Chicken Biryani</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('masala dosa, sambar, coconut chutney, tomato chutney')">🇮🇳 Masala Dosa</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('dal tadka, basmati rice, roti, cucumber raita')">🇮🇳 Dal & Rice</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('paneer tikka masala, naan, rice')">🇮🇳 Paneer Tikka</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('veg thali: dal, sabzi, roti, rice, raita')">🇮🇳 Veg Thali</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('chicken tikka masala, naan, saag paneer')">🇮🇳 Tikka Masala</button>
+                    
+                    <!-- Mexican Meals -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('chicken tacos (3) with salsa, guacamole')">🇲🇽 Chicken Tacos</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('chicken enchiladas, rice, black beans')">🇲🇽 Enchiladas</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('fish tacos (baja style) with cabbage slaw')">🇲🇽 Fish Tacos</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('chicken burrito bowl, black beans, brown rice, guacamole, salsa')">🇲🇽 Burrito Bowl</button>
+                    
+                    <!-- Chinese Meals -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('kung pao chicken, steamed rice')">🇨🇳 Kung Pao Chicken</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('mapo tofu, steamed rice')">🇨🇳 Mapo Tofu</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('hot pot (mixed meats, seafood, vegetables, tofu)')">🇨🇳 Hot Pot</button>
+                    
+                    <!-- Ethiopian/African Meals -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('doro wat platter (chicken stew, injera, vegetables)')">🇪🇹 Doro Wat</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('jollof rice (nigerian) with chicken, plantains')">🇳🇬 Jollof Rice</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('fufu with egusi soup (melon seed soup)')">🇳🇬 Fufu & Egusi</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('jollof rice, grilled tilapia, fried plantains')">🇳🇬 Jollof & Fish</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('injera with doro wat, misir wat, gomen')">🇪🇹 Injera Platter</button>
+                    
+                    <!-- Japanese Meals -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('tonkotsu ramen with egg, pork, bamboo shoots')">🇯🇵 Tonkotsu Ramen</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('sushi platter (salmon, tuna, eel) with miso, edamame')">🇯🇵 Sushi Platter</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('shabu shabu (hot pot) with beef, vegetables, tofu')">🇯🇵 Shabu Shabu</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('miso soup, grilled salmon, steamed rice, natto, pickled vegetables')">🇯🇵 Japanese Breakfast</button>
+                    
+                    <!-- Other Cuisines -->
+                    <button class="quick-meal-btn" onclick="setQuickMeal('bibimbap with beef, vegetables, fried egg, gochujang')">🇰🇷 Bibimbap</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('pad thai with shrimp, peanuts, bean sprouts, lime')">🇹🇭 Pad Thai</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('falafel, hummus, tabbouleh, pita bread, tahini')">🇱🇧 Falafel Plate</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('jerk chicken, rice and peas, fried plantains, cabbage slaw')">🇯🇲 Jerk Chicken</button>
+                    <button class="quick-meal-btn" onclick="setQuickMeal('pho with beef, rice noodles, bean sprouts, basil, lime')">🇻🇳 Pho</button>
+                </div>
+                
+                <button class="analyze-btn" onclick="analyzeMeal()">🔍 Analyze My Meal</button>
+                
+                <div id="portionAdjustment" style="display: none; margin-top: 20px; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 2px solid #667eea;">
+                    <h3 style="margin: 0 0 15px 0; color: #667eea; font-size: 1.2em; font-weight: 700;">⚖️ Adjust Portions</h3>
+                    <div id="portionControls"></div>
+                    <button class="analyze-btn" onclick="recalculateWithPortions()" style="margin-top: 15px; background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);">🔄 Update Analysis</button>
+                </div>
+            </div>
+            
+            <div id="results" class="results">
+                <div class="completion-score">
+                    <div class="score-number" id="completionScore">0%</div>
+                    <div class="score-label">Nutritionally Complete</div>
+                </div>
+                
+                <div class="nutrient-rings" id="nutrientRings"></div>
+                
+                <div class="covered-nutrients" id="coveredSection"></div>
+                
+                <div class="gaps-list" id="gapsSection"></div>
+                
+                <div class="section-title">
+                    🥗 Quick Food Fixes
+                </div>
+                <div id="foodRecs"></div>
+                
+                <div class="section-title">
+                    💊 Supplement Suggestions
+                </div>
+                <div id="supplementRecs"></div>
+                
+                <div class="section-title">
+                    ⏰ Timing Tips
+                </div>
+                <div id="timingRecs"></div>
+                
+                <button class="reset-btn" onclick="resetApp()">Analyze Another Meal</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Current portions for selected meal
+        let currentPortions = {};
+        let currentMealKey = '';
+        
+        // Portion definitions for meals that support adjustment
+        const portionDefinitions = {
+            'scrambled eggs, whole wheat toast, avocado': {
+                'Eggs': { min: 1, max: 6, default: 2, unit: 'eggs' },
+                'Toast': { min: 1, max: 3, default: 2, unit: 'slices' },
+                'Avocado': { min: 0.25, max: 1, default: 0.5, unit: 'avocado', step: 0.25 }
+            },
+            'grilled chicken breast, brown rice, steamed broccoli': {
+                'Chicken': { min: 3, max: 12, default: 6, unit: 'oz' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Broccoli': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'salmon fillet, quinoa, spinach salad with olive oil': {
+                'Salmon': { min: 3, max: 10, default: 6, unit: 'oz' },
+                'Quinoa': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Spinach': { min: 1, max: 3, default: 2, unit: 'cups' }
+            },
+            'greek yogurt, granola, blueberries, honey': {
+                'Yogurt': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Granola': { min: 0.25, max: 1, default: 0.5, unit: 'cup' },
+                'Blueberries': { min: 0.25, max: 1.5, default: 0.5, unit: 'cup' }
+            },
+            'chicken burrito bowl, black beans, brown rice, guacamole, salsa': {
+                'Chicken': { min: 3, max: 10, default: 6, unit: 'oz' },
+                'Black Beans': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Guacamole': { min: 2, max: 6, default: 3, unit: 'tbsp' }
+            },
+            
+            // ========== INDIAN MEALS ==========
+            'chicken biryani, raita, salad': {
+                'Chicken': { min: 4, max: 12, default: 6, unit: 'oz' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Raita': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'paneer tikka masala, naan, rice': {
+                'Paneer': { min: 3, max: 10, default: 6, unit: 'oz' },
+                'Naan': { min: 1, max: 3, default: 2, unit: 'pieces' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'veg thali: dal, sabzi, roti, rice, raita': {
+                'Dal': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Sabzi': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Roti': { min: 1, max: 4, default: 2, unit: 'pieces' },
+                'Rice': { min: 0.5, max: 1.5, default: 0.75, unit: 'cup', step: 0.25 }
+            },
+            'dal tadka, basmati rice, roti, cucumber raita': {
+                'Dal': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Roti': { min: 1, max: 4, default: 2, unit: 'pieces' }
+            },
+            'masala dosa, sambar, coconut chutney, tomato chutney': {
+                'Dosa': { min: 1, max: 3, default: 2, unit: 'pieces' },
+                'Sambar': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            
+            // ========== MEXICAN MEALS ==========
+            'chicken tacos (3) with salsa, guacamole': {
+                'Tacos': { min: 2, max: 5, default: 3, unit: 'tacos' },
+                'Guacamole': { min: 2, max: 8, default: 4, unit: 'tbsp' },
+                'Salsa': { min: 2, max: 8, default: 4, unit: 'tbsp' }
+            },
+            'chicken enchiladas, rice, black beans': {
+                'Enchiladas': { min: 2, max: 4, default: 3, unit: 'pieces' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Black Beans': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'fish tacos (baja style) with cabbage slaw': {
+                'Tacos': { min: 2, max: 5, default: 3, unit: 'tacos' },
+                'Cabbage Slaw': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            
+            // ========== CHINESE MEALS ==========
+            'kung pao chicken, steamed rice': {
+                'Chicken': { min: 4, max: 12, default: 6, unit: 'oz' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' },
+                'Peanuts': { min: 1, max: 4, default: 2, unit: 'tbsp' }
+            },
+            'mapo tofu, steamed rice': {
+                'Tofu': { min: 4, max: 12, default: 8, unit: 'oz' },
+                'Rice': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'hot pot (mixed meats, seafood, vegetables, tofu)': {
+                'Meat/Seafood': { min: 4, max: 12, default: 6, unit: 'oz' },
+                'Tofu': { min: 3, max: 10, default: 6, unit: 'oz' },
+                'Vegetables': { min: 1, max: 4, default: 2, unit: 'cups' }
+            },
+            
+            // ========== ETHIOPIAN/AFRICAN MEALS ==========
+            'doro wat platter (chicken stew, injera, vegetables)': {
+                'Chicken': { min: 4, max: 10, default: 6, unit: 'oz' },
+                'Injera': { min: 2, max: 6, default: 4, unit: 'pieces' },
+                'Vegetables': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'jollof rice (nigerian) with chicken, plantains': {
+                'Chicken': { min: 4, max: 12, default: 6, unit: 'oz' },
+                'Jollof Rice': { min: 0.75, max: 2.5, default: 1.5, unit: 'cups', step: 0.25 },
+                'Plantains': { min: 0.5, max: 2, default: 1, unit: 'plantain' }
+            },
+            'fufu with egusi soup (melon seed soup)': {
+                'Fufu': { min: 1, max: 3, default: 2, unit: 'balls' },
+                'Egusi Soup': { min: 0.75, max: 2, default: 1.5, unit: 'cups', step: 0.25 }
+            },
+            
+            // ========== JAPANESE MEALS ==========
+            'tonkotsu ramen with egg, pork, bamboo shoots': {
+                'Ramen': { min: 1, max: 2, default: 1, unit: 'bowl' },
+                'Pork': { min: 2, max: 6, default: 4, unit: 'oz' },
+                'Egg': { min: 1, max: 3, default: 1, unit: 'egg' }
+            },
+            'sushi platter (salmon, tuna, eel) with miso, edamame': {
+                'Sushi Pieces': { min: 6, max: 20, default: 12, unit: 'pieces' },
+                'Edamame': { min: 0.5, max: 2, default: 1, unit: 'cup' }
+            },
+            'shabu shabu (hot pot) with beef, vegetables, tofu': {
+                'Beef': { min: 4, max: 12, default: 6, unit: 'oz' },
+                'Tofu': { min: 3, max: 10, default: 6, unit: 'oz' },
+                'Vegetables': { min: 1, max: 4, default: 2, unit: 'cups' }
+            }
+        };
+        
+        // Meal database with nutritional profiles
+        const mealDatabase = {
+            'masala dosa, sambar, coconut chutney, tomato chutney': {
+                score: 68,
+                nutrients: {
+                    'Protein': 52,
+                    'Fiber': 75,
+                    'Iron': 68,
+                    'Folate': 70,
+                    'Carbs': 85,
+                    'B Vitamins': 65
+                },
+                covered: [
+                    'Moderate protein (12g) - from lentils in dosa batter and sambar',
+                    'Good fiber (10g) - from lentils and vegetables',
+                    'Iron from lentils - 60% of daily needs (plant-based)',
+                    'Folate from lentils and rice - important for cell health',
+                    'Complex carbs for sustained energy',
+                    'B vitamins from fermented batter - natural probiotics'
+                ],
+                gaps: [
+                    'Vitamin B12 - zero (fully plant-based)',
+                    'Omega-3 fatty acids - only 6% covered',
+                    'Calcium - only 22% covered',
+                    'Vitamin D - minimal',
+                    'Zinc - only 30% covered',
+                    'Complete protein - limited (missing some amino acids)',
+                    'Healthy fats - very low'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1/2 cup plain yogurt or curd',
+                        description: 'Traditional South Indian side - eat with dosa',
+                        benefit: 'Completes protein profile, adds calcium (25%), B12 (40%), probiotics. Traditional pairing!'
+                    },
+                    {
+                        title: 'Include egg curry or paneer bhurji (1 serving)',
+                        description: '1-2 eggs or 50g paneer as side',
+                        benefit: 'Boosts protein to 25g+, adds B12, calcium, complete amino acids, vitamin D from eggs'
+                    },
+                    {
+                        title: 'Extra sambar with vegetables',
+                        description: 'Double portion with drumstick, carrots, okra',
+                        benefit: 'Increases fiber, vitamins A & C, makes meal more filling without adding refined carbs'
+                    },
+                    {
+                        title: 'Add 1 tbsp ghee or coconut oil to dosa',
+                        description: 'Brush on while cooking or drizzle',
+                        benefit: 'Adds healthy fats (14g), vitamin A from ghee, helps absorb fat-soluble nutrients'
+                    },
+                    {
+                        title: 'Side of banana or orange',
+                        description: 'Fresh fruit after meal',
+                        benefit: 'Vitamin C boosts iron absorption from sambar by 3x. Potassium from banana aids digestion.'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin B12 (500-1000 mcg sublingual)',
+                        description: 'CRITICAL - take daily, anytime',
+                        benefit: 'Plant-based meals have ZERO B12. Non-negotiable for vegetarians to prevent nerve damage.'
+                    },
+                    {
+                        title: 'Vitamin C (500mg) OR lemon juice',
+                        description: 'Take with meal OR squeeze lemon on dosa/sambar',
+                        benefit: 'CRITICAL - increases iron absorption from lentils by 3-4x. Food source preferred!'
+                    },
+                    {
+                        title: 'Omega-3 algae oil (250mg DHA)',
+                        description: 'Take with meal if you added ghee/oil',
+                        benefit: 'Vegan omega-3 source. Needs dietary fat for absorption - add ghee to dosa first.'
+                    },
+                    {
+                        title: 'Vitamin D3 (2000 IU)',
+                        description: 'Take with meal if adding ghee/coconut oil',
+                        benefit: 'Fat-soluble - needs fat to absorb. Most Indians deficient due to limited sun exposure.'
+                    },
+                    {
+                        title: 'Zinc (15mg)',
+                        description: 'Take with or after meal',
+                        benefit: 'Vegetarian diets typically low in zinc. Important for immune function and wound healing.'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect breakfast or light dinner',
+                        description: 'Traditional South Indian breakfast - anytime meal',
+                        benefit: 'Easy to digest, provides steady energy for 3-4 hours. Light enough for dinner too.'
+                    },
+                    {
+                        title: 'Fermented batter = natural probiotics',
+                        description: 'Overnight fermentation creates beneficial bacteria',
+                        benefit: 'Like yogurt - supports gut health and aids digestion. Traditional preparation is healthiest!'
+                    },
+                    {
+                        title: '⚠️ ALWAYS add vitamin C source',
+                        description: 'Lemon juice on dosa/sambar OR fruit after',
+                        benefit: 'Plant-based iron needs vitamin C to absorb. This is ESSENTIAL - don\'t skip!'
+                    },
+                    {
+                        title: 'Take calcium supplement LATER',
+                        description: '2-3 hours after meal',
+                        benefit: 'Calcium blocks iron absorption from lentils. This meal has lots of iron - separate them!'
+                    },
+                    {
+                        title: 'Best with coffee/tea AFTER meal',
+                        description: 'Wait 1 hour after eating',
+                        benefit: 'Tannins in tea/coffee block 60-90% of iron absorption. Enjoy tea 1 hour later.'
+                    }
+                ]
+            },
+            'grilled chicken breast, brown rice, steamed broccoli': {
+                score: 72,
+                nutrients: {
+                    'Protein': 95,
+                    'B Vitamins': 85,
+                    'Iron': 65,
+                    'Vitamin K': 90,
+                    'Fiber': 70,
+                    'Selenium': 88
+                },
+                covered: [
+                    'High protein (42g) - excellent for muscle maintenance',
+                    'B vitamins from chicken - supports energy metabolism',
+                    'Vitamin K from broccoli - important for blood clotting',
+                    'Fiber from brown rice and broccoli - digestive health'
+                ],
+                gaps: [
+                    'Omega-3 fatty acids - only 5% of daily needs',
+                    'Vitamin E - only 12% covered',
+                    'Calcium - only 18% of daily requirement',
+                    'Vitamin D - minimal amounts',
+                    'Magnesium - only 35% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 2 tbsp pumpkin seeds',
+                        description: 'Sprinkle on rice or broccoli while still hot',
+                        benefit: 'Covers 25% magnesium, adds omega-3s, vitamin E, and zinc'
+                    },
+                    {
+                        title: 'Drizzle 1 tbsp olive oil + lemon juice',
+                        description: 'Dress the broccoli before serving',
+                        benefit: 'Adds vitamin E, helps absorb fat-soluble vitamins from broccoli'
+                    },
+                    {
+                        title: 'Side of 1/2 cup Greek yogurt',
+                        description: 'Great dessert or side',
+                        benefit: 'Covers calcium gap (30%), adds probiotics and B12'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 fish oil (1000mg)',
+                        description: 'Take with this meal',
+                        benefit: 'Meal contains some fat (chicken skin/cooking oil) which helps absorption'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with this meal',
+                        benefit: 'Fat-soluble vitamin - works best with dietary fat present'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Take calcium supplement LATER',
+                        description: 'Wait 2-3 hours after this meal',
+                        benefit: 'Iron in chicken competes with calcium absorption - separate them'
+                    },
+                    {
+                        title: 'Best eaten 2-3 hours before bed',
+                        description: 'High protein content',
+                        benefit: 'Protein takes time to digest - avoid too close to sleep'
+                    }
+                ]
+            },
+            'salmon fillet, quinoa, spinach salad with olive oil': {
+                score: 88,
+                nutrients: {
+                    'Omega-3': 98,
+                    'Protein': 90,
+                    'Iron': 75,
+                    'Vitamin E': 82,
+                    'Magnesium': 85,
+                    'B Vitamins': 88
+                },
+                covered: [
+                    'Omega-3 fatty acids - excellent from salmon (1800mg)',
+                    'Complete protein - all essential amino acids',
+                    'Iron from spinach and quinoa - 65% of daily needs',
+                    'Vitamin E from olive oil - powerful antioxidant',
+                    'Magnesium from quinoa - supports 300+ body processes'
+                ],
+                gaps: [
+                    'Vitamin D - only 45% covered',
+                    'Calcium - only 28% of daily requirement',
+                    'Vitamin C - only 15% covered',
+                    'Zinc - only 40% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1/4 cup sliced strawberries',
+                        description: 'Mix into the spinach salad',
+                        benefit: 'Covers vitamin C gap AND boosts iron absorption from spinach by 3x'
+                    },
+                    {
+                        title: 'Sprinkle 2 tbsp feta cheese',
+                        description: 'Crumble over salad',
+                        benefit: 'Adds calcium (15%), zinc, and enhances flavor'
+                    },
+                    {
+                        title: 'Side of 1 cup fortified almond milk',
+                        description: 'As a beverage',
+                        benefit: 'Covers calcium and vitamin D gaps completely'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with this meal',
+                        benefit: 'Salmon has healthy fats - perfect for fat-soluble vitamin D absorption'
+                    },
+                    {
+                        title: 'Zinc (15mg)',
+                        description: 'Can take with meal or later',
+                        benefit: 'Fills the gap - important for immune function'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect pre-workout meal',
+                        description: 'Eat 1-2 hours before exercise',
+                        benefit: 'Omega-3s reduce inflammation, protein supports muscles'
+                    },
+                    {
+                        title: 'Vitamin C supplement NOT needed',
+                        description: 'Add strawberries instead',
+                        benefit: 'Fresh vitamin C from food is better absorbed than pills'
+                    }
+                ]
+            },
+            'scrambled eggs, whole wheat toast, avocado': {
+                score: 68,
+                nutrients: {
+                    'Protein': 75,
+                    'B Vitamins': 88,
+                    'Healthy Fats': 85,
+                    'Vitamin E': 65,
+                    'Folate': 70,
+                    'Choline': 95
+                },
+                covered: [
+                    'B vitamins especially B12 - eggs are excellent source',
+                    'Choline from eggs - critical for brain health',
+                    'Healthy fats from avocado - supports hormone production',
+                    'Protein (22g) - good breakfast foundation',
+                    'Fiber from whole wheat - aids digestion'
+                ],
+                gaps: [
+                    'Vitamin C - only 8% covered',
+                    'Calcium - only 15% of daily needs',
+                    'Vitamin D - only 25% covered',
+                    'Iron - only 30% covered',
+                    'Omega-3 - minimal amounts'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1/2 cup strawberries or orange',
+                        description: 'On the side',
+                        benefit: 'Covers vitamin C completely + helps absorb iron from eggs'
+                    },
+                    {
+                        title: 'Add 2 tbsp chia seeds to eggs',
+                        description: 'Mix in while scrambling',
+                        benefit: 'Adds omega-3s (2400mg), calcium, iron - barely noticeable'
+                    },
+                    {
+                        title: 'Switch to fortified orange juice',
+                        description: 'Instead of water/coffee',
+                        benefit: 'Covers vitamin C and often fortified with calcium & vitamin D'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with this meal',
+                        benefit: 'Eggs and avocado provide fat for optimal absorption'
+                    },
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with breakfast',
+                        benefit: 'Meal has fat content - enhances omega-3 uptake'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Ideal breakfast timing: 7-9 AM',
+                        description: 'Aligns with cortisol rhythm',
+                        benefit: 'Protein and fats help stabilize blood sugar through morning'
+                    },
+                    {
+                        title: 'Take multivitamin with this meal',
+                        description: 'If you use one',
+                        benefit: 'Fat from eggs/avocado helps absorb fat-soluble vitamins A, D, E, K'
+                    }
+                ]
+            },
+            'greek yogurt, granola, blueberries, honey': {
+                score: 65,
+                nutrients: {
+                    'Protein': 70,
+                    'Calcium': 85,
+                    'Probiotics': 95,
+                    'Vitamin K': 65,
+                    'Antioxidants': 88,
+                    'B12': 75
+                },
+                covered: [
+                    'Calcium from yogurt - 40% of daily needs',
+                    'Probiotics - billions of beneficial bacteria',
+                    'Protein (18g) - from Greek yogurt',
+                    'Antioxidants from blueberries - anti-inflammatory',
+                    'B12 from yogurt - supports nerve health'
+                ],
+                gaps: [
+                    'Iron - only 10% covered',
+                    'Vitamin D - only 15% covered',
+                    'Omega-3 - minimal amounts',
+                    'Vitamin E - only 12% covered',
+                    'Magnesium - only 25% covered',
+                    'Zinc - only 20% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 2 tbsp ground flaxseed',
+                        description: 'Stir into yogurt',
+                        benefit: 'Adds omega-3s (2300mg), fiber, and magnesium without changing taste'
+                    },
+                    {
+                        title: 'Mix in 1/4 cup pumpkin seeds',
+                        description: 'Replace some granola',
+                        benefit: 'Covers magnesium, zinc, iron, and adds healthy fats'
+                    },
+                    {
+                        title: 'Top with 1 tbsp almond butter',
+                        description: 'Drizzle on top',
+                        benefit: 'Adds vitamin E, magnesium, healthy fats - boosts satiety'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with this meal',
+                        benefit: 'Yogurt has some fat, plus vitamin D helps calcium absorption'
+                    },
+                    {
+                        title: 'Iron supplement (if needed)',
+                        description: 'Take SEPARATELY - 2 hours later',
+                        benefit: 'Calcium in yogurt blocks iron absorption - keep them apart'
+                    },
+                    {
+                        title: 'Omega-3 supplement',
+                        description: 'Take with this meal',
+                        benefit: 'Some fat present from yogurt and granola'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Great post-workout snack',
+                        description: 'Within 30-60 minutes after exercise',
+                        benefit: 'Protein for muscle recovery, probiotics for gut health'
+                    },
+                    {
+                        title: 'Good evening snack option',
+                        description: '1-2 hours before bed',
+                        benefit: 'Protein helps stabilize blood sugar overnight, probiotics work while you sleep'
+                    },
+                    {
+                        title: 'Pair with vitamin C source',
+                        description: 'Add kiwi or strawberries',
+                        benefit: 'If taking iron supplement later, vitamin C boosts absorption'
+                    }
+                ]
+            },
+            'dal tadka, basmati rice, roti, cucumber raita': {
+                score: 78,
+                nutrients: {
+                    'Protein': 82,
+                    'Fiber': 88,
+                    'Iron': 75,
+                    'Folate': 85,
+                    'Magnesium': 80,
+                    'B Vitamins': 78
+                },
+                covered: [
+                    'Complete protein from dal (lentils + rice combo)',
+                    'High fiber (14g) - excellent for digestion',
+                    'Iron from lentils - 70% of daily needs',
+                    'Folate from dal - crucial for cell health',
+                    'Probiotics from raita - supports gut health',
+                    'Complex carbs for sustained energy'
+                ],
+                gaps: [
+                    'Vitamin B12 - only 12% (common in vegetarian meals)',
+                    'Omega-3 fatty acids - only 8% covered',
+                    'Vitamin D - minimal amounts',
+                    'Zinc - only 35% covered',
+                    'Vitamin A - only 25% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1 tbsp ghee to dal',
+                        description: 'Traditional and delicious - drizzle on top',
+                        benefit: 'Adds healthy fats, vitamin A, helps absorb fat-soluble nutrients from vegetables'
+                    },
+                    {
+                        title: 'Mix 2 tbsp ground flaxseed into raita',
+                        description: 'Stir in well - totally undetectable',
+                        benefit: 'Adds omega-3s (2400mg) and fiber without changing taste or texture'
+                    },
+                    {
+                        title: 'Side of mango or papaya (1 cup)',
+                        description: 'Fresh fruit as dessert',
+                        benefit: 'Covers vitamin A completely (150% daily needs) + vitamin C boosts iron absorption by 3x'
+                    },
+                    {
+                        title: 'Add paneer to dal (100g/1 cup cubes)',
+                        description: 'Common variation - stir into dal',
+                        benefit: 'Boosts protein by 18g, adds calcium (20%), vitamin B12, and zinc'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin B12 (500-1000 mcg sublingual)',
+                        description: 'CRITICAL for vegetarians - take with meal',
+                        benefit: 'Plant-based meals have ZERO B12 - deficiency causes nerve damage over time'
+                    },
+                    {
+                        title: 'Vitamin D3 (2000 IU)',
+                        description: 'Take with meal if you added ghee or oil',
+                        benefit: 'Fat-soluble vitamin - ghee/oil helps absorption. Most Indians are deficient.'
+                    },
+                    {
+                        title: 'Omega-3 algae oil (250mg DHA)',
+                        description: 'Vegan option - take with meal',
+                        benefit: 'Plant-based omega-3 source. Works with ghee/oil in meal for absorption.'
+                    },
+                    {
+                        title: 'Zinc (15mg)',
+                        description: 'Can take with or after meal',
+                        benefit: 'Vegetarian diets often low in zinc - important for immune system'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect lunch or dinner timing',
+                        description: 'Eat as main meal, avoid late night',
+                        benefit: 'High fiber and protein keep you full for 4-5 hours. Dal digests slowly - eat 2-3 hours before bed.'
+                    },
+                    {
+                        title: '⚠️ Take iron supplement SEPARATELY',
+                        description: 'Wait 2-3 hours, NOT with raita',
+                        benefit: 'Calcium in yogurt/raita blocks iron absorption by 50%. This meal has lots of iron - don\'t waste it!'
+                    },
+                    {
+                        title: 'Add vitamin C for iron boost',
+                        description: 'Squeeze lemon on dal OR eat fruit after',
+                        benefit: 'Vitamin C increases plant-based iron absorption by 3-4x. Essential for vegetarian meals!'
+                    },
+                    {
+                        title: 'Best time for B12 supplement',
+                        description: 'Take in the morning with breakfast',
+                        benefit: 'Doesn\'t matter what time, but morning routine = better consistency for vegetarians'
+                    }
+                ]
+            },
+            'chicken tikka masala, naan, saag paneer': {
+                score: 75,
+                nutrients: {
+                    'Protein': 92,
+                    'Calcium': 82,
+                    'Iron': 78,
+                    'Vitamin A': 88,
+                    'Vitamin K': 90,
+                    'B Vitamins': 85
+                },
+                covered: [
+                    'High protein (45g) - chicken and paneer combo',
+                    'Calcium from paneer and cream - 75% of daily needs',
+                    'Vitamin A from spinach (saag) - excellent for vision',
+                    'Vitamin K from spinach - supports bone health',
+                    'Iron from spinach and chicken',
+                    'B vitamins from chicken - energy metabolism'
+                ],
+                gaps: [
+                    'Fiber - only 25% covered (refined naan)',
+                    'Omega-3 fatty acids - only 10% covered',
+                    'Vitamin C - only 20% covered',
+                    'Magnesium - only 40% covered',
+                    'Vitamin E - only 15% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add cucumber and tomato salad',
+                        description: 'Fresh on the side with lemon',
+                        benefit: 'Adds vitamin C, fiber, helps digest heavy cream sauce'
+                    },
+                    {
+                        title: 'Add 1/2 cup brown rice',
+                        description: 'Extra base alongside naan',
+                        benefit: 'Boosts fiber significantly, adds magnesium and B vitamins'
+                    },
+                    {
+                        title: 'Sprinkle 2 tbsp sliced almonds',
+                        description: 'Over saag paneer',
+                        benefit: 'Adds vitamin E, magnesium, healthy fats, nice crunch'
+                    },
+                    {
+                        title: 'Extra raita on the side',
+                        description: '1 cup cucumber raita',
+                        benefit: 'Probiotics, calcium boost, cools the spices'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with this meal',
+                        benefit: 'Cream sauce has fat - good for omega-3 absorption'
+                    },
+                    {
+                        title: 'Digestive enzymes',
+                        description: 'If prone to heaviness',
+                        benefit: 'Rich, creamy meal - enzymes help break down fats and proteins'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Best for lunch or early dinner',
+                        description: 'Before 7 PM ideally',
+                        benefit: 'Rich, heavy meal - give yourself 3-4 hours to digest before bed'
+                    },
+                    {
+                        title: 'Take probiotics separately',
+                        description: '2 hours after meal',
+                        benefit: 'Spices and heat can affect probiotic survival - take later'
+                    },
+                    {
+                        title: 'Pair with digestive tea',
+                        description: 'Ginger or mint tea after',
+                        benefit: 'Helps digest rich, creamy sauces and prevents bloating'
+                    }
+                ]
+            },
+            'jollof rice, grilled tilapia, fried plantains': {
+                score: 80,
+                nutrients: {
+                    'Protein': 88,
+                    'Vitamin A': 82,
+                    'B Vitamins': 85,
+                    'Selenium': 92,
+                    'Potassium': 85,
+                    'Vitamin C': 70
+                },
+                covered: [
+                    'High protein (38g) from tilapia - lean and complete',
+                    'Vitamin A from tomatoes and peppers - 75% of daily needs',
+                    'B vitamins especially B12 from fish - energy and nerves',
+                    'Selenium from tilapia - powerful antioxidant, thyroid support',
+                    'Potassium from plantains - heart and muscle health',
+                    'Vitamin C from peppers and tomatoes'
+                ],
+                gaps: [
+                    'Omega-3 fatty acids - only 15% (tilapia is low)',
+                    'Calcium - only 18% covered',
+                    'Vitamin D - only 25% covered',
+                    'Fiber - only 35% covered',
+                    'Magnesium - only 42% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add avocado slices on the side',
+                        description: '1/2 avocado, sliced',
+                        benefit: 'Adds healthy fats, fiber, magnesium, vitamin E - balances fried plantains'
+                    },
+                    {
+                        title: 'Include green salad with peppers',
+                        description: 'Lettuce, cucumber, bell peppers',
+                        benefit: 'Boosts fiber, adds vitamin K, helps digest rice'
+                    },
+                    {
+                        title: 'Top rice with 2 tbsp ground egusi',
+                        description: 'Melon seed powder - traditional',
+                        benefit: 'Adds protein, omega-3s, calcium, magnesium, zinc'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg EPA/DHA)',
+                        description: 'Take with this meal',
+                        benefit: 'Tilapia is low in omega-3s unlike salmon - supplement recommended'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal',
+                        benefit: 'Fried plantains provide fat for absorption'
+                    },
+                    {
+                        title: 'Calcium supplement',
+                        description: 'Can take with this meal',
+                        benefit: 'No major absorption conflicts - fish has moderate iron'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Ideal lunch or dinner',
+                        description: 'Satisfying main meal',
+                        benefit: 'Balanced macros keep you satisfied for 4-5 hours'
+                    },
+                    {
+                        title: 'Eat plantains in moderation',
+                        description: 'Fried = higher calories',
+                        benefit: 'Plantains are healthy but frying adds significant fat/calories'
+                    },
+                    {
+                        title: 'Good post-workout meal',
+                        description: 'Within 1-2 hours after exercise',
+                        benefit: 'Protein for muscle repair, carbs replenish glycogen, potassium for electrolytes'
+                    }
+                ]
+            },
+            'miso soup, grilled salmon, steamed rice, natto, pickled vegetables': {
+                score: 92,
+                nutrients: {
+                    'Protein': 95,
+                    'Omega-3': 98,
+                    'Probiotics': 95,
+                    'Vitamin K2': 98,
+                    'B Vitamins': 90,
+                    'Selenium': 92
+                },
+                covered: [
+                    'Omega-3 from salmon (2000mg) - exceptional heart and brain health',
+                    'Complete protein (42g) from salmon and natto',
+                    'Probiotics from miso and natto - billions of beneficial bacteria',
+                    'Vitamin K2 from natto - rare nutrient, crucial for bones',
+                    'B vitamins especially B12 - energy metabolism',
+                    'Selenium from salmon - antioxidant, thyroid support'
+                ],
+                gaps: [
+                    'Vitamin C - only 22% covered',
+                    'Calcium - only 35% covered',
+                    'Fiber - only 30% covered',
+                    'Vitamin E - only 40% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add seaweed salad (wakame)',
+                        description: 'Traditional side dish',
+                        benefit: 'Adds calcium, iodine, fiber, and minerals from the sea'
+                    },
+                    {
+                        title: 'Include edamame (1 cup)',
+                        description: 'Steamed with salt',
+                        benefit: 'Boosts protein, adds fiber, calcium, and vitamin C'
+                    },
+                    {
+                        title: 'Add mandarin orange or persimmon',
+                        description: 'Fresh fruit after meal',
+                        benefit: 'Covers vitamin C gap, aids iron absorption, cleansing finish'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with salmon',
+                        benefit: 'Salmon has omega-3 fats - perfect for fat-soluble vitamin D'
+                    },
+                    {
+                        title: 'Calcium usually NOT needed',
+                        description: 'If supplementing, take separately',
+                        benefit: 'This meal is already nutritionally complete for most people'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect breakfast (traditional)',
+                        description: 'Japanese breakfast style',
+                        benefit: 'Protein and omega-3s provide sustained energy all morning'
+                    },
+                    {
+                        title: 'Probiotics already in meal',
+                        description: 'No separate probiotic needed',
+                        benefit: 'Miso and natto provide billions of beneficial bacteria naturally'
+                    },
+                    {
+                        title: 'One of the healthiest meals possible',
+                        description: 'Blue Zone inspired',
+                        benefit: 'This combination is linked to longevity in Japanese diet studies'
+                    }
+                ]
+            },
+            'bibimbap with beef, vegetables, fried egg, gochujang': {
+                score: 85,
+                nutrients: {
+                    'Protein': 90,
+                    'Vitamin A': 92,
+                    'Iron': 88,
+                    'Vitamin K': 90,
+                    'Fiber': 82,
+                    'B Vitamins': 88
+                },
+                covered: [
+                    'Complete protein (40g) - beef, egg, sesame oil combo',
+                    'Vitamin A from carrots and spinach - excellent for vision',
+                    'Iron from beef and spinach - 85% of daily needs, highly absorbable',
+                    'Vitamin K from vegetables - bone and blood health',
+                    'Fiber from vegetables and rice - digestive health',
+                    'Variety of vegetables = wide nutrient spectrum'
+                ],
+                gaps: [
+                    'Omega-3 fatty acids - only 12% covered',
+                    'Calcium - only 28% covered',
+                    'Vitamin D - only 15% covered',
+                    'Vitamin C - only 35% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add kimchi side (1/2 cup)',
+                        description: 'Traditional accompaniment',
+                        benefit: 'Probiotics, vitamin C, fiber - aids digestion of rice and meat'
+                    },
+                    {
+                        title: 'Sprinkle 1 tbsp sesame seeds on top',
+                        description: 'Toasted for flavor',
+                        benefit: 'Adds calcium, omega-3s, vitamin E - traditional and tasty'
+                    },
+                    {
+                        title: 'Add extra vegetables (bean sprouts, zucchini)',
+                        description: 'More is better in bibimbap',
+                        benefit: 'Increases fiber, vitamins, fills the bowl without extra calories'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with this meal',
+                        benefit: 'Sesame oil provides some fat for absorption'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal',
+                        benefit: 'Egg and sesame oil provide fat for this fat-soluble vitamin'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Excellent lunch or dinner',
+                        description: 'Complete, balanced meal',
+                        benefit: 'Balanced macros and high vegetable content = sustained satisfaction'
+                    },
+                    {
+                        title: 'Mix everything together thoroughly',
+                        description: 'Traditional eating method',
+                        benefit: 'Helps distribute flavors and ensures you get variety in each bite'
+                    },
+                    {
+                        title: 'Great post-workout meal',
+                        description: '1-2 hours after exercise',
+                        benefit: 'Protein for recovery, carbs for glycogen, iron for oxygen transport'
+                    }
+                ]
+            },
+            'chicken burrito bowl, black beans, brown rice, guacamole, salsa': {
+                score: 82,
+                nutrients: {
+                    'Protein': 88,
+                    'Fiber': 92,
+                    'Folate': 88,
+                    'Vitamin C': 85,
+                    'Healthy Fats': 82,
+                    'Iron': 75
+                },
+                covered: [
+                    'High protein (42g) - chicken and beans create complete protein',
+                    'Exceptional fiber (16g) - digestive health superstar',
+                    'Folate from black beans - crucial for cell function',
+                    'Vitamin C from salsa and peppers - immune support',
+                    'Healthy fats from guacamole - heart health',
+                    'Complex carbs from brown rice and beans - sustained energy'
+                ],
+                gaps: [
+                    'Calcium - only 25% covered',
+                    'Vitamin D - minimal',
+                    'Omega-3 fatty acids - only 15% covered',
+                    'Vitamin A - only 38% covered',
+                    'B12 - only 45% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1/4 cup shredded cheese',
+                        description: 'Cheddar or Mexican blend',
+                        benefit: 'Covers calcium (25%), adds B12, protein, and enhances flavor'
+                    },
+                    {
+                        title: 'Add Greek yogurt or sour cream',
+                        description: '2-3 tbsp on top',
+                        benefit: 'Calcium, probiotics, B12, and cools down spicy salsa'
+                    },
+                    {
+                        title: 'Extra peppers and tomatoes',
+                        description: 'In the salsa',
+                        benefit: 'Boosts vitamin C and A, adds more vegetables'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with this meal',
+                        benefit: 'Guacamole provides healthy fat for absorption'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal if adding cheese/sour cream',
+                        benefit: 'Dairy fat helps absorb this fat-soluble vitamin'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect lunch or post-workout',
+                        description: 'Substantial and balanced',
+                        benefit: 'High protein and fiber keep you full for 5+ hours'
+                    },
+                    {
+                        title: 'Excellent meal prep option',
+                        description: 'Components store well separately',
+                        benefit: 'Make in bulk - rice, beans, chicken keep for days'
+                    },
+                    {
+                        title: 'Go easy on salt if using canned beans',
+                        description: 'Rinse beans first',
+                        benefit: 'Reduces sodium by 40% while keeping all the nutrients'
+                    }
+                ]
+            },
+            'pad thai with shrimp, peanuts, bean sprouts, lime': {
+                score: 76,
+                nutrients: {
+                    'Protein': 85,
+                    'Vitamin C': 82,
+                    'Iron': 70,
+                    'B Vitamins': 80,
+                    'Vitamin E': 75,
+                    'Selenium': 88
+                },
+                covered: [
+                    'High protein (36g) from shrimp and peanuts',
+                    'Vitamin C from lime and bean sprouts - immune support',
+                    'Iron from shrimp - highly bioavailable form',
+                    'B vitamins from shrimp - energy metabolism',
+                    'Vitamin E from peanuts - antioxidant protection',
+                    'Selenium from shrimp - thyroid and immune function'
+                ],
+                gaps: [
+                    'Fiber - only 25% (rice noodles are refined)',
+                    'Calcium - only 22% covered',
+                    'Omega-3 fatty acids - only 20% covered',
+                    'Vitamin A - only 30% covered',
+                    'Magnesium - only 40% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Extra vegetables (carrots, cabbage, peppers)',
+                        description: 'Add more to the stir-fry',
+                        benefit: 'Boosts fiber, vitamin A, fills you up with fewer noodles'
+                    },
+                    {
+                        title: 'Top with extra crushed peanuts',
+                        description: '2-3 tbsp more',
+                        benefit: 'Adds protein, magnesium, vitamin E, healthy fats'
+                    },
+                    {
+                        title: 'Add extra bean sprouts and fresh herbs',
+                        description: 'Cilantro, basil, mint',
+                        benefit: 'Increases vitamin C, K, and adds fresh flavor dimension'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with meal',
+                        benefit: 'Shrimp is low in omega-3s despite being seafood - supplement helps'
+                    },
+                    {
+                        title: 'Calcium supplement',
+                        description: 'Take 2 hours later',
+                        benefit: 'Avoid with this meal - wait to prevent iron absorption interference'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Best for lunch or early dinner',
+                        description: 'Light yet satisfying',
+                        benefit: 'Quick-digesting carbs from noodles - not ideal right before bed'
+                    },
+                    {
+                        title: 'Squeeze extra lime juice',
+                        description: 'Right before eating',
+                        benefit: 'Vitamin C helps absorb iron from shrimp and vegetables'
+                    },
+                    {
+                        title: 'Watch the sugar in sauce',
+                        description: 'Traditional pad thai is sweet',
+                        benefit: 'Can contain 15-20g sugar - request less sauce if watching intake'
+                    }
+                ]
+            },
+            'falafel, hummus, tabbouleh, pita bread, tahini': {
+                score: 80,
+                nutrients: {
+                    'Protein': 75,
+                    'Fiber': 90,
+                    'Iron': 82,
+                    'Folate': 85,
+                    'Vitamin K': 88,
+                    'Magnesium': 80
+                },
+                covered: [
+                    'Plant-based complete protein from chickpea + tahini combo',
+                    'Exceptional fiber (18g) - digestive health champion',
+                    'Iron from chickpeas and parsley - 75% of daily needs',
+                    'Folate from chickpeas - crucial for cell division',
+                    'Vitamin K from parsley and herbs - bone health',
+                    'Magnesium from chickpeas and tahini'
+                ],
+                gaps: [
+                    'Vitamin B12 - zero (fully plant-based)',
+                    'Omega-3 fatty acids - only 8% covered',
+                    'Calcium - only 30% covered',
+                    'Vitamin D - minimal',
+                    'Zinc - only 45% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 2 tbsp ground flaxseed to hummus',
+                        description: 'Mix in while making or eating',
+                        benefit: 'Adds omega-3s (2400mg), fiber - totally unnoticeable'
+                    },
+                    {
+                        title: 'Include fortified plant milk (1 cup)',
+                        description: 'As a beverage',
+                        benefit: 'Covers calcium, vitamin D, and often B12 - perfect for vegan meal'
+                    },
+                    {
+                        title: 'Extra tahini drizzle',
+                        description: '2 more tbsp',
+                        benefit: 'Boosts calcium, protein, healthy fats, selenium'
+                    },
+                    {
+                        title: 'Add pickled turnips or beets',
+                        description: 'Traditional Middle Eastern side',
+                        benefit: 'Probiotics from fermentation, adds color and crunch'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin B12 (500-1000 mcg)',
+                        description: 'ESSENTIAL for plant-based eaters',
+                        benefit: 'No B12 in plants - supplementation is not optional for vegans'
+                    },
+                    {
+                        title: 'Omega-3 algae oil (250mg DHA)',
+                        description: 'Take with meal',
+                        benefit: 'Vegan omega-3 source, tahini provides fat for absorption'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal',
+                        benefit: 'Tahini and olive oil provide fat needed for absorption'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect lunch option',
+                        description: 'Light yet filling',
+                        benefit: 'High fiber keeps you satisfied without feeling heavy'
+                    },
+                    {
+                        title: 'Add lemon to tabbouleh',
+                        description: 'Extra squeeze',
+                        benefit: 'Vitamin C dramatically increases iron absorption from chickpeas'
+                    },
+                    {
+                        title: 'Excellent for plant-based eaters',
+                        description: 'With proper B12 supplementation',
+                        benefit: 'Nearly complete nutrition - just needs B12 and omega-3 supplement'
+                    }
+                ]
+            },
+            'jerk chicken, rice and peas, fried plantains, cabbage slaw': {
+                score: 78,
+                nutrients: {
+                    'Protein': 90,
+                    'Fiber': 80,
+                    'Vitamin C': 88,
+                    'Iron': 75,
+                    'Potassium': 85,
+                    'B Vitamins': 82
+                },
+                covered: [
+                    'High protein (44g) from chicken - lean and complete',
+                    'Fiber from kidney beans and plantains - digestive health',
+                    'Vitamin C from cabbage slaw - immune support, collagen production',
+                    'Iron from beans and chicken - good bioavailability',
+                    'Potassium from plantains - heart and muscle function',
+                    'B vitamins from chicken - energy metabolism'
+                ],
+                gaps: [
+                    'Calcium - only 25% covered',
+                    'Omega-3 fatty acids - only 10% covered',
+                    'Vitamin D - only 18% covered',
+                    'Vitamin E - only 20% covered',
+                    'Magnesium - only 48% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add avocado to slaw or on the side',
+                        description: '1/2 avocado sliced',
+                        benefit: 'Adds healthy fats, vitamin E, magnesium, potassium - balances fried plantains'
+                    },
+                    {
+                        title: 'Extra lime juice on everything',
+                        description: 'Generous squeezes',
+                        benefit: 'Vitamin C boosts iron absorption from beans by 3-4x'
+                    },
+                    {
+                        title: 'Add coconut (fresh or flakes) to rice',
+                        description: '2-3 tbsp',
+                        benefit: 'Traditional Caribbean touch, adds healthy fats and minerals'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with meal',
+                        benefit: 'Fried plantains provide fat for absorption'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal',
+                        benefit: 'Fat from frying helps absorb fat-soluble vitamin D'
+                    },
+                    {
+                        title: 'Calcium supplement',
+                        description: 'Take 2-3 hours later',
+                        benefit: 'Avoid with this meal - iron from beans competes with calcium'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Best for lunch or early dinner',
+                        description: 'Hearty main meal',
+                        benefit: 'High protein and fiber provide long-lasting satiety'
+                    },
+                    {
+                        title: 'Spices in jerk seasoning are beneficial',
+                        description: 'Anti-inflammatory compounds',
+                        benefit: 'Allspice, scotch bonnet, thyme have health-promoting properties'
+                    },
+                    {
+                        title: 'Plantains provide energy',
+                        description: 'Natural sugars and resistant starch',
+                        benefit: 'Quick energy + gut health benefits from resistant starch in plantains'
+                    }
+                ]
+            },
+            'pho with beef, rice noodles, bean sprouts, basil, lime': {
+                score: 72,
+                nutrients: {
+                    'Protein': 82,
+                    'Iron': 88,
+                    'B Vitamins': 85,
+                    'Vitamin C': 75,
+                    'Vitamin K': 80,
+                    'Selenium': 78
+                },
+                covered: [
+                    'High protein (35g) from beef - complete amino acid profile',
+                    'Iron from beef - highly absorbable heme iron (85% of needs)',
+                    'B vitamins especially B12 from beef - nervous system health',
+                    'Vitamin C from herbs, lime, sprouts - immune support',
+                    'Vitamin K from fresh herbs - blood clotting, bones',
+                    'Hydration from broth - often overlooked benefit'
+                ],
+                gaps: [
+                    'Fiber - only 18% (rice noodles are refined)',
+                    'Calcium - only 20% covered',
+                    'Omega-3 fatty acids - only 8% covered',
+                    'Vitamin E - only 15% covered',
+                    'Magnesium - only 35% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Load up on extra vegetables',
+                        description: 'More bean sprouts, basil, cilantro, jalapeños',
+                        benefit: 'Boosts fiber, vitamins, minerals - makes broth more nutritious'
+                    },
+                    {
+                        title: 'Add a soft-boiled egg',
+                        description: 'Common add-on',
+                        benefit: 'Extra protein, vitamin D, choline, healthy fats'
+                    },
+                    {
+                        title: 'Squeeze lots of lime',
+                        description: 'Generous amount into broth',
+                        benefit: 'Vitamin C dramatically increases iron absorption from beef'
+                    },
+                    {
+                        title: 'Add hoisin and sriracha mindfully',
+                        description: 'Condiments in moderation',
+                        benefit: 'Flavor enhancers but can add excess sodium and sugar'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take separately - meal is very low fat',
+                        benefit: 'Better absorbed with a fattier meal later in the day'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with a different meal',
+                        benefit: 'This meal lacks the fat needed for fat-soluble vitamin absorption'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Perfect comfort meal anytime',
+                        description: 'Especially when sick',
+                        benefit: 'Warm broth is hydrating, easy to digest, nutrients from bone broth'
+                    },
+                    {
+                        title: 'Best for lunch or light dinner',
+                        description: 'Not too heavy',
+                        benefit: 'Broth-based = lower calorie density, won\'t make you sluggish'
+                    },
+                    {
+                        title: 'Watch sodium in broth',
+                        description: 'Can be very high',
+                        benefit: 'Traditional pho can have 1500+ mg sodium - request low-sodium if available'
+                    }
+                ]
+            },
+            'injera with doro wat, misir wat, gomen': {
+                score: 85,
+                nutrients: {
+                    'Protein': 88,
+                    'Iron': 92,
+                    'Fiber': 90,
+                    'Vitamin K': 95,
+                    'Folate': 88,
+                    'B Vitamins': 85
+                },
+                covered: [
+                    'Exceptional iron from lentils and collards - 90% of daily needs',
+                    'Complete protein from chicken and lentil combination',
+                    'Outstanding fiber (20g) from injera, lentils, greens',
+                    'Vitamin K from collard greens - bone and blood health',
+                    'Folate from lentils - crucial for cell function',
+                    'Probiotics from fermented injera - gut health'
+                ],
+                gaps: [
+                    'Calcium - only 38% covered',
+                    'Vitamin B12 - only 55% covered',
+                    'Omega-3 fatty acids - only 12% covered',
+                    'Vitamin D - minimal',
+                    'Zinc - only 50% covered'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add ayib (Ethiopian cottage cheese)',
+                        description: 'Traditional side',
+                        benefit: 'Covers calcium gap (30%), adds B12, protein, probiotics'
+                    },
+                    {
+                        title: 'Extra gomen (collard greens)',
+                        description: 'Ask for double portion',
+                        benefit: 'More calcium, vitamin K, iron - can\'t overdo greens'
+                    },
+                    {
+                        title: 'Add ground flaxseed to misir wat',
+                        description: 'If making at home',
+                        benefit: 'Omega-3s blend into lentils perfectly - undetectable'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Vitamin C with this meal',
+                        description: 'Squeeze lemon or take supplement',
+                        benefit: 'CRITICAL - vitamin C increases plant-based iron absorption by 4x'
+                    },
+                    {
+                        title: 'Omega-3 algae oil (250mg DHA)',
+                        description: 'Take with meal',
+                        benefit: 'Berbere spices have some fat, but limited - still worthwhile'
+                    },
+                    {
+                        title: 'Vitamin B12 if fully plant-based version',
+                        description: 'If eating veggie-only Ethiopian',
+                        benefit: 'Without doro wat (chicken), no B12 - must supplement'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Communal eating enhances digestion',
+                        description: 'Shared platter, relaxed pace',
+                        benefit: 'Stress-free eating improves nutrient absorption and satisfaction'
+                    },
+                    {
+                        title: 'Fermented injera is probiotic',
+                        description: 'Natural fermentation = live cultures',
+                        benefit: 'Supports gut health similar to yogurt or kimchi'
+                    },
+                    {
+                        title: 'Don\'t take calcium supplement with this meal',
+                        description: 'Wait 3+ hours',
+                        benefit: 'Extremely high iron content - calcium would block absorption'
+                    }
+                ]
+            },
+            'greek yogurt, granola, blueberries, honey': {
+                score: 58,
+                nutrients: {
+                    'Protein': 68,
+                    'B Vitamins': 72,
+                    'Selenium': 85,
+                    'Fiber': 55,
+                    'Vitamin K': 45,
+                    'Iron': 48
+                },
+                covered: [
+                    'Protein (28g) - lean turkey is great source',
+                    'B vitamins especially B3 and B6 - from turkey',
+                    'Selenium from turkey - supports thyroid',
+                    'Some fiber from whole grain bread',
+                    'Vitamin K from lettuce'
+                ],
+                gaps: [
+                    'Calcium - only 12% covered',
+                    'Vitamin D - minimal',
+                    'Omega-3 - only 5% covered',
+                    'Vitamin E - only 8% covered',
+                    'Magnesium - only 28% covered',
+                    'Vitamin C - only 18% covered',
+                    'Healthy fats - very low'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add 1/4 avocado to sandwich',
+                        description: 'Mash or slice',
+                        benefit: 'Adds healthy fats, vitamin E, magnesium - makes it more filling'
+                    },
+                    {
+                        title: 'Add 1 slice cheese (cheddar/swiss)',
+                        description: 'Inside sandwich',
+                        benefit: 'Covers calcium (20%), adds protein, provides fat for satiety'
+                    },
+                    {
+                        title: 'Side of baby carrots + hummus',
+                        description: '10 carrots + 1/4 cup hummus',
+                        benefit: 'Adds vitamin A, fiber, healthy fats, and iron from chickpeas'
+                    },
+                    {
+                        title: 'Side of orange or bell pepper',
+                        description: 'Fresh on the side',
+                        benefit: 'Covers vitamin C completely - improves iron absorption from turkey'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Omega-3 supplement (1000mg)',
+                        description: 'Take with meal IF you add avocado/cheese',
+                        benefit: 'Need some dietary fat for absorption - basic sandwich too lean'
+                    },
+                    {
+                        title: 'Vitamin D (2000 IU)',
+                        description: 'Take with meal if you add cheese/avocado',
+                        benefit: 'Fat-soluble - needs dietary fat to absorb properly'
+                    },
+                    {
+                        title: 'Multivitamin',
+                        description: 'Better with a different meal',
+                        benefit: 'This meal is too low-fat to absorb fat-soluble vitamins well'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Good lunch option',
+                        description: 'Midday meal 12-2 PM',
+                        benefit: 'Lean protein keeps you alert, not too heavy'
+                    },
+                    {
+                        title: 'Add healthy fat for satisfaction',
+                        description: 'Avocado or nuts on side',
+                        benefit: 'Low-fat meals digest quickly - you may get hungry soon'
+                    },
+                    {
+                        title: 'If taking calcium supplement',
+                        description: 'Can take with this meal',
+                        benefit: 'Low iron content - no major absorption conflicts'
+                    }
+                ]
+            },
+            
+            // ========== ADDITIONAL INDIAN MEALS ==========
+            'chicken biryani, raita, salad': {
+                score: 82,
+                nutrients: { 'Protein': 88, 'Iron': 72, 'B Vitamins': 85, 'Zinc': 78, 'Selenium': 82, 'Fiber': 65 },
+                covered: ['High protein (45g) from chicken and basmati rice', 'Iron from chicken and spices (70%)', 'B vitamins especially B6 and niacin', 'Selenium from chicken - immune support', 'Probiotics from raita'],
+                gaps: ['Omega-3 (12%)', 'Vitamin D (25%)', 'Calcium (35%)', 'Vitamin C (20%)', 'Vitamin E (30%)'],
+                foodFixes: [
+                    { title: 'Add cucumber-tomato salad (kachumber)', description: 'Finely chopped with lemon', benefit: 'Vitamin C boosts iron absorption by 3x, adds freshness' },
+                    { title: 'Extra raita (1 cup)', description: 'Boondi or cucumber raita', benefit: 'Doubles calcium (35%→60%), adds probiotics' },
+                    { title: 'Roasted cashews on top (10-15 nuts)', description: 'Traditional garnish', benefit: 'Adds zinc, magnesium, healthy fats' },
+                    { title: 'Mango lassi side', description: 'Sweet yogurt drink', benefit: 'Vitamin A (100%+), calcium, traditional pairing' }
+                ],
+                supplements: [
+                    { title: 'Omega-3 fish oil (1000mg)', description: 'Take with meal - has fat from ghee', benefit: 'Biryani has fat for absorption' },
+                    { title: 'Vitamin D3 (2000 IU)', description: 'Take with meal', benefit: 'Fat from ghee/yogurt helps absorption' }
+                ],
+                timing: [
+                    { title: 'Perfect lunch or dinner', description: 'Heavy meal - eat 3-4 hours before bed', benefit: 'High protein and fats take time to digest' },
+                    { title: 'Add lemon juice or salad', description: 'Vitamin C source essential', benefit: 'Ensures maximum iron absorption' },
+                    { title: 'Avoid tea immediately after', description: 'Wait 1 hour', benefit: 'Tannins block iron - enjoy chai later' }
+                ]
+            },
+            'paneer tikka masala, naan, rice': {
+                score: 75,
+                nutrients: { 'Protein': 78, 'Calcium': 65, 'Iron': 68, 'Fiber': 75, 'Folate': 80 },
+                covered: ['Protein (32g) from paneer', 'Calcium from paneer (60%)', 'Iron from spices', 'High fiber from vegetables', 'Complete vegetarian meal'],
+                gaps: ['B12 (25%)', 'Omega-3 (8%)', 'Vitamin D (15%)', 'Zinc (40%)', 'Vitamin A (30%)'],
+                foodFixes: [
+                    { title: 'Add spinach to paneer (palak style)', description: 'Blend into gravy', benefit: 'Vitamin A (100%+), iron boost, healthier and tastier' },
+                    { title: 'Drizzle 1 tbsp ghee on naan', description: 'Traditional', benefit: 'Vitamin A, helps absorb fat-soluble nutrients' },
+                    { title: 'Carrot-beetroot salad side', description: 'Raw or lightly cooked', benefit: 'Vitamin A and C, aids iron absorption' }
+                ],
+                supplements: [
+                    { title: 'Vitamin B12 (500mcg)', description: 'Important for vegetarians', benefit: 'Paneer has some but not enough - daily supplement' },
+                    { title: 'Omega-3 algae oil (250mg)', description: 'Take with meal', benefit: 'Vegetarian source, works with fat in paneer/ghee' }
+                ],
+                timing: [
+                    { title: 'Best for lunch', description: 'Rich, filling meal', benefit: 'Takes 4-5 hours to digest fully' },
+                    { title: 'Take iron supplement later', description: '2-3 hours after', benefit: 'Calcium in paneer blocks iron' }
+                ]
+            },
+            'veg thali: dal, sabzi, roti, rice, raita': {
+                score: 88,
+                nutrients: { 'Protein': 78, 'Fiber': 90, 'Iron': 82, 'Folate': 85, 'Calcium': 65 },
+                covered: ['Balanced complete meal', 'High fiber (18g)', 'Iron from dal and vegetables', 'Calcium from raita', 'Probiotics', 'Complex carbs'],
+                gaps: ['B12 (15%)', 'Omega-3 (12%)', 'Vitamin D (20%)'],
+                foodFixes: [
+                    { title: 'Add paneer sabzi', description: 'Paneer vegetable curry', benefit: 'Boosts B12, calcium, protein' },
+                    { title: 'Extra ghee on dal and roti', description: '1-2 tbsp total', benefit: 'Vitamin A, helps nutrient absorption, traditional' },
+                    { title: 'Flaxseed in raita (2 tbsp)', description: 'Ground flaxseed stirred in', benefit: 'Omega-3s, undetectable' }
+                ],
+                supplements: [
+                    { title: 'Vitamin B12 (500mcg)', description: 'Daily for vegetarians', benefit: 'Plant-based thali has minimal B12' },
+                    { title: 'Vitamin D3 (2000 IU)', description: 'With meal', benefit: 'Works with calcium from raita' }
+                ],
+                timing: [
+                    { title: 'Perfect complete meal', description: 'Traditional balance', benefit: 'All food groups represented, excellent lunch' }
+                ]
+            },
+            
+            // ========== MEXICAN MEALS ==========
+            'chicken tacos (3) with salsa, guacamole': {
+                score: 75,
+                nutrients: { 'Protein': 85, 'Fiber': 65, 'Vitamin C': 72, 'Healthy Fats': 70, 'Iron': 68 },
+                covered: ['High protein (38g) from chicken', 'Fiber from corn tortillas', 'Vitamin C from salsa and lime', 'Healthy fats from guacamole', 'Iron from chicken'],
+                gaps: ['Calcium (30%)', 'Omega-3 (15%)', 'Vitamin D (12%)', 'B12 (45%)'],
+                foodFixes: [
+                    { title: 'Add black beans (1/2 cup)', description: 'Traditional side', benefit: 'Boosts fiber to 95%, adds iron and folate' },
+                    { title: 'Extra guacamole', description: 'Double portion', benefit: 'Healthy fats, vitamin E, potassium' },
+                    { title: 'Add shredded cheese', description: '1/4 cup on tacos', benefit: 'Calcium (20%), protein, flavor' },
+                    { title: 'Pico de gallo extra', description: 'Fresh tomatoes, onions, cilantro', benefit: 'Vitamin C, antioxidants, freshness' }
+                ],
+                supplements: [
+                    { title: 'Calcium (500mg)', description: 'Take with meal or later', benefit: 'This meal is low in calcium' },
+                    { title: 'Vitamin D3 (2000 IU)', description: 'With meal if adding cheese/guac', benefit: 'Fat helps absorption' }
+                ],
+                timing: [
+                    { title: 'Perfect lunch or dinner', description: 'Balanced macros', benefit: 'Protein and healthy fats keep you satisfied 4-5 hours' },
+                    { title: 'Lime juice essential', description: 'Squeeze on everything', benefit: 'Vitamin C boosts iron absorption from chicken' }
+                ]
+            },
+            'chicken enchiladas, rice, black beans': {
+                score: 80,
+                nutrients: { 'Protein': 88, 'Fiber': 82, 'Iron': 75, 'Calcium': 55, 'Folate': 80 },
+                covered: ['High protein (42g) from chicken and beans', 'Exceptional fiber (16g)', 'Iron from beans', 'Calcium from cheese (55%)', 'Folate from beans'],
+                gaps: ['Omega-3 (18%)', 'Vitamin D (20%)', 'Vitamin E (35%)'],
+                foodFixes: [
+                    { title: 'Extra cheese on top', description: 'Additional 1/4 cup', benefit: 'Boosts calcium to 75%' },
+                    { title: 'Avocado slices', description: '1/2 avocado on top', benefit: 'Healthy fats, vitamin E, potassium' },
+                    { title: 'Side salad with cilantro-lime', description: 'Fresh greens', benefit: 'Vitamins A and C, freshness to balance richness' }
+                ],
+                supplements: [
+                    { title: 'Omega-3 fish oil (1000mg)', description: 'Take with meal', benefit: 'Cheese has some fat for absorption' },
+                    { title: 'Vitamin D3 (2000 IU)', description: 'With meal', benefit: 'Works with calcium from cheese' }
+                ],
+                timing: [
+                    { title: 'Heavy dinner meal', description: 'Eat 3-4 hours before bed', benefit: 'High calorie, takes time to digest' }
+                ]
+            },
+            'fish tacos (baja style) with cabbage slaw': {
+                score: 85,
+                nutrients: { 'Protein': 88, 'Omega-3': 75, 'Vitamin C': 80, 'Fiber': 68, 'B Vitamins': 78 },
+                covered: ['High protein (35g) from fish', 'Omega-3s from fish (75%)', 'Vitamin C from lime and cabbage', 'Good fiber from corn tortillas and slaw', 'B vitamins from fish'],
+                gaps: ['Calcium (35%)', 'Vitamin D (40%)'],
+                foodFixes: [
+                    { title: 'Avocado crema', description: 'Blend avocado with lime and sour cream', benefit: 'Healthy fats, calcium from crema, creaminess' },
+                    { title: 'Extra cabbage slaw', description: 'Load it up', benefit: 'Fiber, vitamin C, crunch' },
+                    { title: 'Mango salsa', description: 'Fresh mango with jalapeño', benefit: 'Vitamin A (100%+), sweetness balances fish' }
+                ],
+                supplements: [
+                    { title: 'Calcium (500mg)', description: 'Take later in day', benefit: 'This meal is omega-3 rich but calcium-poor' }
+                ],
+                timing: [
+                    { title: 'Perfect light dinner', description: 'Omega-3 rich but not heavy', benefit: 'Fish digests quickly, great before bed' }
+                ]
+            },
+            
+            // ========== CHINESE MEALS ==========
+            'kung pao chicken, steamed rice': {
+                score: 72,
+                nutrients: { 'Protein': 85, 'B Vitamins': 75, 'Selenium': 78, 'Vitamin E': 65, 'Iron': 68 },
+                covered: ['High protein (40g) from chicken', 'B vitamins from chicken', 'Selenium for immune support', 'Vitamin E from peanuts', 'Iron from chicken and sauce'],
+                gaps: ['Fiber (45%)', 'Omega-3 (15%)', 'Calcium (25%)', 'Vitamin D (12%)'],
+                foodFixes: [
+                    { title: 'Add extra vegetables to the dish', description: 'Bell peppers, zucchini, snap peas mixed in', benefit: 'Boosts fiber, vitamins A and C without changing the meal' },
+                    { title: 'Side of steamed bok choy', description: '1 cup on the side', benefit: 'Adds calcium (10%), vitamin K, very low calorie' },
+                    { title: 'Add more cashews on top', description: '2-3 tbsp extra cashews or mixed nuts', benefit: 'More minerals (zinc, magnesium), healthy fats' },
+                    { title: 'Drizzle sesame oil on rice', description: '1 tsp sesame oil', benefit: 'Adds healthy fats, vitamin E, authentic flavor' }
+                ],
+                supplements: [
+                    { title: 'Fiber supplement', description: 'Psyllium husk or similar', benefit: 'White rice is low fiber - supplement helps' },
+                    { title: 'Omega-3 (1000mg)', description: 'Take with meal', benefit: 'Stir-fry has cooking oil for absorption' }
+                ],
+                timing: [
+                    { title: 'Best for lunch or dinner', description: 'Balanced macros', benefit: 'Spicy food may aid metabolism' }
+                ]
+            },
+            'mapo tofu, steamed rice': {
+                score: 75,
+                nutrients: { 'Protein': 78, 'Iron': 72, 'Calcium': 58, 'Fiber': 70, 'Folate': 68 },
+                covered: ['Protein (30g) from tofu and pork', 'Iron from tofu', 'Calcium from tofu (58%)', 'Good fiber from tofu', 'Warming spices aid digestion'],
+                gaps: ['B12 (25% unless using meat)', 'Omega-3 (10%)', 'Vitamin D (15%)', 'Vitamin A (30%)'],
+                foodFixes: [
+                    { title: 'Add extra minced pork', description: 'Additional 2-3 oz pork to the dish', benefit: 'Boosts B12 to 85%, adds iron and flavor (traditional preparation)' },
+                    { title: 'Add extra vegetables', description: 'Mushrooms, scallions, garlic mixed in', benefit: 'Vitamins and minerals without adding calories' },
+                    { title: 'Add fermented black beans', description: 'Traditional ingredient - 1-2 tbsp', benefit: 'Probiotics, deeper umami flavor, authentic' },
+                    { title: 'Side of stir-fried greens', description: 'Bok choy or Chinese broccoli', benefit: 'Vitamin A, calcium, fiber boost' }
+                ],
+                supplements: [
+                    { title: 'Vitamin B12 (500mcg)', description: 'If vegetarian version', benefit: 'Tofu-only has no B12' },
+                    { title: 'Omega-3 algae oil (250mg)', description: 'Take with meal', benefit: 'Cooking oil helps absorption' }
+                ],
+                timing: [
+                    { title: 'Perfect comfort food', description: 'Warming and satisfying', benefit: 'Sichuan peppercorns may aid digestion' }
+                ]
+            },
+            'hot pot (mixed meats, seafood, vegetables, tofu)': {
+                score: 88,
+                nutrients: { 'Protein': 85, 'Omega-3': 70, 'Fiber': 80, 'Iron': 82, 'Calcium': 65 },
+                covered: ['Very balanced meal', 'High protein from variety of sources', 'Omega-3 from seafood (70%)', 'Excellent fiber from vegetables', 'Calcium from tofu', 'Hydrating broth'],
+                gaps: ['Can be high in sodium', 'Vitamin D (depends on fish chosen)'],
+                foodFixes: [
+                    { title: 'Include fatty fish', description: 'Salmon, mackerel slices', benefit: 'Omega-3 boost to 95%+' },
+                    { title: 'Lots of leafy greens', description: 'Napa cabbage, bok choy, spinach', benefit: 'Vitamins A, K, C, iron' },
+                    { title: 'Mushrooms (variety)', description: 'Enoki, shiitake, oyster', benefit: 'Vitamin D, umami, immune support' },
+                    { title: 'Request low-sodium broth', description: 'Or make your own', benefit: 'Traditional broths can have 2000+ mg sodium' }
+                ],
+                supplements: [
+                    { title: 'Usually complete!', description: 'Very balanced meal', benefit: 'Hot pot done right covers almost everything' }
+                ],
+                timing: [
+                    { title: 'Perfect social meal', description: 'Share with friends/family', benefit: 'Slow eating pace aids digestion, customizable to preferences' }
+                ]
+            },
+            
+            // ========== ETHIOPIAN/AFRICAN MEALS ==========
+            'doro wat platter (chicken stew, injera, vegetables)': {
+                score: 85,
+                nutrients: { 'Protein': 88, 'Iron': 92, 'Fiber': 90, 'Vitamin K': 95, 'Folate': 88 },
+                covered: ['Exceptional iron (90%) from chicken and berbere spices', 'Complete protein from chicken', 'Outstanding fiber (20g) from injera and lentils', 'Vitamin K from greens', 'Probiotics from fermented injera'],
+                gaps: ['Calcium (38%)', 'B12 (55%)', 'Omega-3 (12%)', 'Vitamin D (minimal)'],
+                foodFixes: [
+                    { title: 'Add ayib (Ethiopian cheese)', description: 'Traditional side', benefit: 'Covers calcium gap (30%), adds B12 and protein' },
+                    { title: 'Extra gomen (collard greens)', description: 'Double portion', benefit: 'More calcium, vitamin K, iron - excellent addition' },
+                    { title: 'Ground flaxseed in misir wat', description: 'If making at home', benefit: 'Omega-3s blend in perfectly' }
+                ],
+                supplements: [
+                    { title: 'Vitamin C with meal', description: 'Lemon juice or supplement', benefit: 'CRITICAL - increases plant iron absorption by 4x' },
+                    { title: 'Omega-3 algae oil (250mg)', description: 'Take with meal', benefit: 'Limited in Ethiopian cuisine' }
+                ],
+                timing: [
+                    { title: 'Communal eating benefits', description: 'Shared platter, relaxed', benefit: 'Stress-free eating improves absorption' },
+                    { title: 'Fermented injera = probiotics', description: 'Like yogurt', benefit: 'Supports gut health' },
+                    { title: 'No calcium supplement with meal', description: 'Wait 3+ hours', benefit: 'Extremely high iron - calcium blocks it' }
+                ]
+            },
+            'jollof rice (nigerian) with chicken, plantains': {
+                score: 80,
+                nutrients: { 'Protein': 85, 'Vitamin C': 75, 'B Vitamins': 78, 'Vitamin A': 70, 'Iron': 72 },
+                covered: ['High protein (40g) from chicken', 'Vitamin C from tomatoes (75%)', 'B vitamins from chicken', 'Vitamin A from red peppers', 'Iron from chicken and tomato sauce'],
+                gaps: ['Omega-3 (18%)', 'Calcium (30%)', 'Fiber (55%)'],
+                foodFixes: [
+                    { title: 'Add fish instead/alongside', description: 'Tilapia or mackerel', benefit: 'Traditional variation, boosts omega-3s' },
+                    { title: 'Extra vegetables in rice', description: 'Carrots, peas, peppers', benefit: 'More vitamins and fiber' },
+                    { title: 'Coleslaw side', description: 'Cabbage salad', benefit: 'Fiber, vitamin C, freshness' }
+                ],
+                supplements: [
+                    { title: 'Omega-3 fish oil (1000mg)', description: 'If not using fish', benefit: 'Jollof typically low in omega-3s' },
+                    { title: 'Calcium (500mg)', description: 'Take later', benefit: 'This meal is calcium-poor' }
+                ],
+                timing: [
+                    { title: 'Perfect celebration meal', description: 'Traditional for gatherings', benefit: 'Very filling and satisfying' }
+                ]
+            },
+            'fufu with egusi soup (melon seed soup)': {
+                score: 76,
+                nutrients: { 'Protein': 78, 'Healthy Fats': 72, 'Fiber': 70, 'Iron': 75, 'Folate': 68 },
+                covered: ['Protein (32g) from egusi seeds and meat', 'Healthy fats from ground melon seeds', 'Good fiber from vegetables', 'Iron from leafy greens', 'Traditional complete meal'],
+                gaps: ['B12 (25%)', 'Omega-3 (20%)', 'Calcium (32%)', 'Vitamin D (minimal)'],
+                foodFixes: [
+                    { title: 'Add fish or goat meat', description: 'Traditional proteins', benefit: 'Boosts B12 and complete amino acids' },
+                    { title: 'Extra vegetables in soup', description: 'More spinach, bitter leaf', benefit: 'Vitamins A, K, iron' },
+                    { title: 'Palm oil for cooking', description: 'Traditional method', benefit: 'Vitamin A (red palm oil is very high)' }
+                ],
+                supplements: [
+                    { title: 'Vitamin B12 (500mcg)', description: 'Especially if light on meat', benefit: 'Egusi soup can be low in B12' },
+                    { title: 'Omega-3 (1000mg)', description: 'Take with meal', benefit: 'Soup has fat for absorption' },
+                    { title: 'Calcium (500mg)', description: 'Take later', benefit: 'Traditional West African meals often low in calcium' }
+                ],
+                timing: [
+                    { title: 'Heavy meal - best for lunch', description: 'Very filling', benefit: 'Fufu takes time to digest, eat early' }
+                ]
+            },
+            
+            // ========== JAPANESE MEALS ==========
+            'tonkotsu ramen with egg, pork, bamboo shoots': {
+                score: 76,
+                nutrients: { 'Protein': 82, 'B Vitamins': 78, 'Iron': 70, 'Selenium': 75, 'Choline': 72 },
+                covered: ['High protein (38g) from pork and egg', 'B vitamins from pork and egg', 'Iron from pork', 'Choline from egg', 'Warming and satisfying'],
+                gaps: ['Fiber (45%)', 'Omega-3 (20%)', 'Calcium (30%)', 'Very high sodium (warning!)'],
+                foodFixes: [
+                    { title: 'Extra vegetables', description: 'Corn, seaweed, bean sprouts, bok choy', benefit: 'Fiber, vitamins, minerals' },
+                    { title: 'Soft-boiled egg', description: 'Add second egg if hungry', benefit: 'Protein, vitamin D, B12, choline' },
+                    { title: 'Request low-sodium broth', description: 'Or drink less broth', benefit: 'Tonkotsu can have 2000+ mg sodium - watch intake' },
+                    { title: 'Add nori (seaweed)', description: 'Extra sheets', benefit: 'Iodine, minerals, umami' }
+                ],
+                supplements: [
+                    { title: 'Fiber supplement', description: 'Psyllium husk', benefit: 'Ramen noodles are refined - low fiber' },
+                    { title: 'Omega-3 (1000mg)', description: 'Take separately', benefit: 'Pork has some but not enough' }
+                ],
+                timing: [
+                    { title: 'Perfect comfort food', description: 'Especially when cold/sick', benefit: 'Warm broth is soothing' },
+                    { title: 'Occasional meal only', description: 'High in sodium and fat', benefit: 'Delicious but not everyday food' }
+                ]
+            },
+            'sushi platter (salmon, tuna, eel) with miso, edamame': {
+                score: 88,
+                nutrients: { 'Protein': 90, 'Omega-3': 85, 'B Vitamins': 82, 'Selenium': 88, 'Iron': 75 },
+                covered: ['Exceptional protein (42g) from fish', 'Omega-3s from salmon (85%)', 'B vitamins especially B12', 'Selenium for immune support', 'Very nutrient-dense meal'],
+                gaps: ['Fiber (40%)', 'Calcium (35%)', 'Vitamin D (depends on fish)'],
+                foodFixes: [
+                    { title: 'Extra edamame', description: 'Additional serving (1 cup)', benefit: 'Protein, fiber, calcium, iron - perfect sushi companion' },
+                    { title: 'Seaweed salad side', description: 'Traditional accompaniment', benefit: 'Iodine, minerals, fiber, authentic pairing' },
+                    { title: 'Add avocado roll', description: 'Or extra avocado slices', benefit: 'Healthy fats, vitamin E, fiber, creamy texture' },
+                    { title: 'Cucumber sunomono', description: 'Vinegared cucumber salad', benefit: 'Hydration, freshness, vitamin K' }
+                ],
+                supplements: [
+                    { title: 'Fiber supplement', description: 'If using white rice', benefit: 'White sushi rice is low fiber' },
+                    { title: 'Calcium (500mg)', description: 'Take later in day', benefit: 'Sushi is calcium-poor despite being healthy' }
+                ],
+                timing: [
+                    { title: 'Perfect light meal', description: 'High protein, low calorie', benefit: 'Omega-3 rich, won\'t make you sluggish' }
+                ]
+            },
+            'shabu shabu (hot pot) with beef, vegetables, tofu': {
+                score: 85,
+                nutrients: { 'Protein': 88, 'Iron': 85, 'Vitamin K': 90, 'Fiber': 75, 'Calcium': 55 },
+                covered: ['High protein from beef and tofu', 'Excellent iron from beef (heme iron)', 'Vitamin K from leafy greens', 'Good fiber from vegetables', 'Calcium from tofu'],
+                gaps: ['Omega-3 (25%)', 'Vitamin D (35%)', 'B12 (65%)'],
+                foodFixes: [
+                    { title: 'More tofu', description: 'Soft and firm varieties', benefit: 'Boosts calcium and protein' },
+                    { title: 'Mushroom variety', description: 'Shiitake, enoki, maitake', benefit: 'Vitamin D, immune support, flavor' },
+                    { title: 'Lots of leafy greens', description: 'Mizuna, chrysanthemum leaves, spinach', benefit: 'Vitamins A, K, C, iron' },
+                    { title: 'Sesame ponzu sauce', description: 'For dipping', benefit: 'Healthy fats, flavor without excess sodium' }
+                ],
+                supplements: [
+                    { title: 'Omega-3 (1000mg)', description: 'Take separately', benefit: 'Beef has minimal omega-3s' }
+                ],
+                timing: [
+                    { title: 'Perfect balanced meal', description: 'Customizable and healthy', benefit: 'Slow cooking/eating aids digestion' }
+                ]
+            }
+        };
+        
+        function setQuickMeal(meal) {
+            document.getElementById('mealInput').value = meal;
+            // Hide photo preview if switching to text
+            document.getElementById('photoPreview').style.display = 'none';
+        }
+        
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('photoPreview').style.display = 'block';
+                
+                // Simulate AI recognition - in real app this would call vision API
+                // For demo, we'll randomly select a meal
+                const photoMeals = [
+                    'grilled chicken breast, brown rice, steamed broccoli',
+                    'salmon fillet, quinoa, spinach salad with olive oil',
+                    'chicken tikka masala, naan, saag paneer',
+                    'bibimbap with beef, vegetables, fried egg, gochujang',
+                    'pad thai with shrimp, peanuts, bean sprouts, lime'
+                ];
+                
+                const recognizedMeal = photoMeals[Math.floor(Math.random() * photoMeals.length)];
+                document.getElementById('mealInput').value = '📸 AI detected: ' + recognizedMeal;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function setQuickMeal(meal) {
+            document.getElementById('mealInput').value = meal;
+        }
+        
+        function analyzeMeal() {
+            let mealInput = document.getElementById('mealInput').value.toLowerCase().trim();
+            
+            if (!mealInput) {
+                alert('Please enter a meal or take a photo first!');
+                return;
+            }
+            
+            // Remove "📸 AI detected: " prefix if present
+            mealInput = mealInput.replace('📸 ai detected: ', '');
+            
+            // Store current meal key
+            currentMealKey = mealInput;
+            
+            // Check if this meal has portion controls
+            if (portionDefinitions[mealInput]) {
+                showPortionControls(mealInput);
+            } else {
+                // Hide portion controls if meal doesn't support them
+                document.getElementById('portionAdjustment').style.display = 'none';
+            }
+            
+            // Find matching meal or use default
+            let mealData = mealDatabase[mealInput] || {
+                score: 60,
+                nutrients: {
+                    'Protein': 65,
+                    'Fiber': 50,
+                    'Vitamins': 55,
+                    'Minerals': 48,
+                    'Healthy Fats': 40,
+                    'Antioxidants': 52
+                },
+                covered: [
+                    'Some protein from your meal',
+                    'Basic carbohydrates for energy',
+                    'Some vitamins and minerals'
+                ],
+                gaps: [
+                    'Multiple nutrients likely missing - try one of the example meals for detailed analysis',
+                    'This is a generic analysis - specific meals get personalized recommendations'
+                ],
+                foodFixes: [
+                    {
+                        title: 'Add colorful vegetables',
+                        description: 'Aim for variety',
+                        benefit: 'Different colors = different nutrients'
+                    },
+                    {
+                        title: 'Include a healthy fat source',
+                        description: 'Nuts, seeds, avocado, or olive oil',
+                        benefit: 'Helps absorb fat-soluble vitamins'
+                    }
+                ],
+                supplements: [
+                    {
+                        title: 'Multivitamin',
+                        description: 'With a meal containing some fat',
+                        benefit: 'Covers broad nutrient gaps'
+                    }
+                ],
+                timing: [
+                    {
+                        title: 'Try the example meals above',
+                        description: 'For detailed, personalized analysis',
+                        benefit: 'Get specific recommendations for common meals'
+                    }
+                ]
+            };
+            
+            displayResults(mealData);
+        }
+        
+        function displayResults(data) {
+            // Clear any previous messages first
+            clearPreviousMessages();
+            
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+            
+            // Animate score
+            animateScore(data.score);
+            
+            // Display nutrient rings
+            displayNutrientRings(data.nutrients);
+            
+            // Display what's covered
+            displayCovered(data.covered);
+            
+            // Display gaps
+            displayGaps(data.gaps);
+            
+            // SMART DISPLAY LOGIC - Show recommendations based on completion score
+            const completionScore = data.score;
+            
+            if (completionScore >= 90) {
+                // PERFECT MEAL - Hide all recommendations
+                displayPerfectMealMessage();
+                hideRecommendationSections();
+                
+            } else if (completionScore >= 75) {
+                // GREAT MEAL - Show minimal, optional suggestions
+                displayGreatMealMessage();
+                displayMinimalRecommendations(data.foodFixes, data.supplements);
+                
+            } else if (completionScore >= 50) {
+                // GOOD MEAL - Show normal recommendations
+                displayGoodMealMessage();
+                displayRecommendations('foodRecs', data.foodFixes, 'food');
+                displayRecommendations('supplementRecs', data.supplements, 'supplement');
+                displayRecommendations('timingRecs', data.timing, 'timing');
+                
+            } else {
+                // NEEDS WORK - Show everything with warning
+                displayNeedsWorkMessage();
+                displayRecommendations('foodRecs', data.foodFixes, 'food');
+                displayRecommendations('supplementRecs', data.supplements, 'supplement');
+                displayRecommendations('timingRecs', data.timing, 'timing');
+            }
+            
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
+        function clearPreviousMessages() {
+            // Remove all status messages before showing new ones
+            const existingMessages = document.querySelectorAll('.status-message');
+            existingMessages.forEach(msg => msg.remove());
+        }
+        
+        function displayPerfectMealMessage() {
+            const message = `
+                <div class="status-message" style="background: linear-gradient(135deg, #00b894 0%, #00cec9 100%); 
+                            color: white; padding: 25px; border-radius: 15px; text-align: center; 
+                            margin: 20px 0;">
+                    <div style="font-size: 3em; margin-bottom: 10px;">🎉</div>
+                    <h2 style="margin: 0 0 10px 0; font-size: 1.5em;">Perfect! Nutritionally Complete</h2>
+                    <p style="margin: 0; opacity: 0.95;">This meal covers all essential nutrients. No fixes needed - enjoy!</p>
+                </div>
+            `;
+            document.getElementById('gapsSection').insertAdjacentHTML('afterend', message);
+        }
+        
+        function displayGreatMealMessage() {
+            const message = `
+                <div class="status-message" style="background: linear-gradient(135deg, #fdcb6e 0%, #ffeaa7 100%); 
+                            color: #2d3436; padding: 20px; border-radius: 15px; text-align: center; 
+                            margin: 20px 0;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">👍</div>
+                    <h2 style="margin: 0 0 10px 0; font-size: 1.3em;">Great Meal! Nearly Perfect</h2>
+                    <p style="margin: 0;">Just a few minor improvements available if you want to optimize further.</p>
+                </div>
+            `;
+            document.getElementById('gapsSection').insertAdjacentHTML('afterend', message);
+        }
+        
+        function displayGoodMealMessage() {
+            const message = `
+                <div class="status-message" style="background: #fff3cd; border-left: 4px solid #ffc107; 
+                            padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h3 style="margin: 0 0 10px 0; color: #856404;">👌 Good Meal - Room for Improvement</h3>
+                    <p style="margin: 0; color: #856404;">This meal has some nutrient gaps. Here's how to make it complete:</p>
+                </div>
+            `;
+            document.getElementById('gapsSection').insertAdjacentHTML('afterend', message);
+        }
+        
+        function displayNeedsWorkMessage() {
+            const message = `
+                <div class="status-message" style="background: #f8d7da; border-left: 4px solid #dc3545; 
+                            padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h3 style="margin: 0 0 10px 0; color: #721c24;">⚠️ This Meal Needs Work</h3>
+                    <p style="margin: 0; color: #721c24;">Significant nutrient gaps detected. Consider these fixes to make it nutritionally complete:</p>
+                </div>
+            `;
+            document.getElementById('gapsSection').insertAdjacentHTML('afterend', message);
+        }
+        
+        function hideRecommendationSections() {
+            // Hide all recommendation sections for perfect meals
+            document.getElementById('foodRecs').parentElement.querySelector('.section-title').style.display = 'none';
+            document.getElementById('foodRecs').style.display = 'none';
+            
+            const suppSection = document.getElementById('supplementRecs').parentElement.querySelector('.section-title');
+            if (suppSection) suppSection.style.display = 'none';
+            document.getElementById('supplementRecs').style.display = 'none';
+            
+            const timingSection = document.getElementById('timingRecs').parentElement.querySelector('.section-title');
+            if (timingSection) timingSection.style.display = 'none';
+            document.getElementById('timingRecs').style.display = 'none';
+        }
+        
+        function displayMinimalRecommendations(foodFixes, supplements) {
+            // For great meals (75-89%), show only ONE optional suggestion, collapsed
+            const container = document.getElementById('foodRecs');
+            container.innerHTML = '';
+            
+            // Show toggle button
+            const toggleHTML = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <button onclick="toggleOptionalSuggestions()" 
+                            style="background: white; color: #667eea; border: 2px solid #667eea;
+                                   padding: 12px 24px; border-radius: 25px; font-size: 1em;
+                                   cursor: pointer; transition: all 0.3s;">
+                        ▼ See Optional Improvements
+                    </button>
+                </div>
+                <div id="optionalSuggestions" style="display: none; margin-top: 20px;">
+                    <div class="section-title" style="margin-top: 0;">🥗 Optional Enhancement</div>
+                    <div id="minimalFoodRec"></div>
+                </div>
+            `;
+            container.innerHTML = toggleHTML;
+            
+            // Show just the TOP food fix
+            if (foodFixes && foodFixes.length > 0) {
+                const topFix = foodFixes[0];
+                const cardHTML = `
+                    <div class="recommendation-card food">
+                        <div class="rec-header">
+                            <div class="rec-icon">🥗</div>
+                            <div class="rec-title">${topFix.title}</div>
+                        </div>
+                        <div class="rec-description">${topFix.description}</div>
+                        <div class="rec-benefit">💡 ${topFix.benefit}</div>
+                    </div>
+                `;
+                document.getElementById('minimalFoodRec').innerHTML = cardHTML;
+            }
+            
+            // Hide supplement and timing sections for great meals
+            const suppSection = document.getElementById('supplementRecs').parentElement.querySelector('.section-title');
+            if (suppSection) suppSection.style.display = 'none';
+            document.getElementById('supplementRecs').style.display = 'none';
+            
+            const timingSection = document.getElementById('timingRecs').parentElement.querySelector('.section-title');
+            if (timingSection) timingSection.style.display = 'none';
+            document.getElementById('timingRecs').style.display = 'none';
+        }
+        
+        function toggleOptionalSuggestions() {
+            const suggestions = document.getElementById('optionalSuggestions');
+            const button = event.target;
+            
+            if (suggestions.style.display === 'none') {
+                suggestions.style.display = 'block';
+                button.textContent = '▲ Hide Optional Improvements';
+            } else {
+                suggestions.style.display = 'none';
+                button.textContent = '▼ See Optional Improvements';
+            }
+        }
+        
+        function animateScore(targetScore) {
+            const scoreElement = document.getElementById('completionScore');
+            let currentScore = 0;
+            const increment = targetScore / 30;
+            
+            const interval = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(interval);
+                }
+                scoreElement.textContent = Math.round(currentScore) + '%';
+            }, 30);
+        }
+        
+        function displayNutrientRings(nutrients) {
+            const container = document.getElementById('nutrientRings');
+            container.innerHTML = '';
+            
+            const colors = {
+                high: '#00b894',
+                medium: '#fdcb6e', 
+                low: '#e17055'
+            };
+            
+            Object.keys(nutrients).forEach(nutrient => {
+                const percentage = nutrients[nutrient];
+                const color = percentage >= 70 ? colors.high : percentage >= 40 ? colors.medium : colors.low;
+                
+                const ringHTML = `
+                    <div class="nutrient-ring">
+                        <div class="ring-container">
+                            <svg class="ring-svg" width="80" height="80">
+                                <circle class="ring-background" cx="40" cy="40" r="32"></circle>
+                                <circle class="ring-progress" cx="40" cy="40" r="32" 
+                                    stroke="${color}"
+                                    stroke-dasharray="${2 * Math.PI * 32}"
+                                    stroke-dashoffset="${2 * Math.PI * 32 * (1 - percentage / 100)}">
+                                </circle>
+                            </svg>
+                            <div class="ring-text" style="color: ${color}">${percentage}%</div>
+                        </div>
+                        <div class="nutrient-name">${nutrient}</div>
+                    </div>
+                `;
+                container.innerHTML += ringHTML;
+            });
+        }
+        
+        function displayCovered(covered) {
+            const section = document.getElementById('coveredSection');
+            let html = '<h4>✅ What This Meal Provides</h4>';
+            covered.forEach(item => {
+                html += `<div class="covered-item">• ${item}</div>`;
+            });
+            section.innerHTML = html;
+        }
+        
+        function displayGaps(gaps) {
+            const section = document.getElementById('gapsSection');
+            let html = '<h4>⚠️ Nutrient Gaps to Fill</h4>';
+            gaps.forEach(item => {
+                html += `<div class="gap-item">• ${item}</div>`;
+            });
+            section.innerHTML = html;
+        }
+        
+        function displayRecommendations(containerId, recommendations, type) {
+            const container = document.getElementById(containerId);
+            
+            // Make sure section title is visible (might have been hidden)
+            const sectionTitle = container.parentElement.querySelector('.section-title');
+            if (sectionTitle) {
+                sectionTitle.style.display = 'flex';
+            }
+            container.style.display = 'block';
+            
+            container.innerHTML = '';
+            
+            const icons = {
+                food: '🥗',
+                supplement: '💊',
+                timing: '⏰'
+            };
+            
+            recommendations.forEach(rec => {
+                const cardHTML = `
+                    <div class="recommendation-card ${type}">
+                        <div class="rec-header">
+                            <div class="rec-icon">${icons[type]}</div>
+                            <div class="rec-title">${rec.title}</div>
+                        </div>
+                        <div class="rec-description">${rec.description}</div>
+                        <div class="rec-benefit">💡 ${rec.benefit}</div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+        
+        function resetApp() {
+            document.getElementById('mealInput').value = '';
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
+            document.getElementById('portionAdjustment').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            
+            // Clear any inserted messages
+            const messages = document.querySelectorAll('[style*="gradient"]');
+            messages.forEach(msg => {
+                if (msg.parentElement && msg.parentElement.id !== 'results') {
+                    msg.remove();
+                }
+            });
+            
+            currentPortions = {};
+            currentMealKey = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function showPortionControls(mealKey) {
+            const portions = portionDefinitions[mealKey];
+            if (!portions) return;
+            
+            // Initialize current portions with defaults
+            currentPortions = {};
+            Object.keys(portions).forEach(ingredient => {
+                currentPortions[ingredient] = portions[ingredient].default;
+            });
+            
+            // Build controls HTML
+            let controlsHTML = '';
+            Object.keys(portions).forEach(ingredient => {
+                const def = portions[ingredient];
+                const step = def.step || 1;
+                
+                controlsHTML += `
+                    <div class="portion-control">
+                        <div class="portion-label">${ingredient}</div>
+                        <div class="portion-buttons">
+                            <button class="portion-btn" onclick="adjustPortion('${ingredient}', -${step})">−</button>
+                            <div class="portion-value" id="portion-${ingredient}">${def.default} ${def.unit}</div>
+                            <button class="portion-btn" onclick="adjustPortion('${ingredient}', ${step})">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('portionControls').innerHTML = controlsHTML;
+            document.getElementById('portionAdjustment').style.display = 'block';
+        }
+        
+        function adjustPortion(ingredient, change) {
+            const portions = portionDefinitions[currentMealKey];
+            if (!portions || !portions[ingredient]) return;
+            
+            const def = portions[ingredient];
+            let newValue = currentPortions[ingredient] + change;
+            
+            // Clamp to min/max
+            newValue = Math.max(def.min, Math.min(def.max, newValue));
+            
+            // Round to avoid floating point issues
+            newValue = Math.round(newValue * 100) / 100;
+            
+            currentPortions[ingredient] = newValue;
+            
+            // Update display
+            document.getElementById(`portion-${ingredient}`).textContent = `${newValue} ${def.unit}`;
+        }
+        
+        function recalculateWithPortions() {
+            if (!currentMealKey || !mealDatabase[currentMealKey]) {
+                alert('Please select a meal first!');
+                return;
+            }
+            
+            // Get base meal data
+            let baseMeal = mealDatabase[currentMealKey];
+            let adjustedMeal = JSON.parse(JSON.stringify(baseMeal)); // Deep copy
+            
+            // Calculate multipliers based on portion changes
+            const portions = portionDefinitions[currentMealKey];
+            
+            if (!portions) {
+                // No portion controls for this meal, just use base
+                displayResults(adjustedMeal);
+                return;
+            }
+            
+            // Calculate average multiplier across all ingredients
+            let totalMultiplier = 0;
+            let ingredientCount = 0;
+            let multipliers = {};
+            
+            Object.keys(portions).forEach(ingredient => {
+                const multiplier = currentPortions[ingredient] / portions[ingredient].default;
+                multipliers[ingredient] = multiplier;
+                totalMultiplier += multiplier;
+                ingredientCount++;
+            });
+            
+            const avgMultiplier = totalMultiplier / ingredientCount;
+            
+            // UNIVERSAL NUTRIENT ADJUSTMENT
+            // Scale all nutrients by average multiplier, capped at 100%
+            Object.keys(adjustedMeal.nutrients).forEach(nutrient => {
+                adjustedMeal.nutrients[nutrient] = Math.min(100, Math.round(baseMeal.nutrients[nutrient] * avgMultiplier));
+            });
+            
+            // Adjust completion score
+            adjustedMeal.score = Math.min(95, Math.round(baseMeal.score * avgMultiplier * 0.85 + baseMeal.score * 0.15));
+            
+            // Update covered items with portion info
+            adjustedMeal.covered = [...baseMeal.covered];
+            if (avgMultiplier > 1.3) {
+                adjustedMeal.covered.push(`⬆️ Portions increased by ${Math.round((avgMultiplier - 1) * 100)}% - higher nutrients across the board`);
+            } else if (avgMultiplier < 0.8) {
+                adjustedMeal.covered.push(`⬇️ Portions reduced by ${Math.round((1 - avgMultiplier) * 100)}% - lighter meal`);
+            }
+            
+            // Dynamically update gaps based on new nutrient levels
+            let newGaps = [];
+            baseMeal.gaps.forEach(gap => {
+                // If multiplier significantly improved this gap, remove it
+                if (avgMultiplier < 1.4) {
+                    newGaps.push(gap);
+                }
+            });
+            
+            if (avgMultiplier >= 1.5) {
+                adjustedMeal.covered.push(`✨ Significantly increased portions - most nutrient gaps improved`);
+            }
+            
+            adjustedMeal.gaps = newGaps.length > 0 ? newGaps : ['Minimal gaps - excellent portions!'];
+            
+            // Display updated results
+            displayResults(adjustedMeal);
+        }
+    </script>
+</body>
+</html>
